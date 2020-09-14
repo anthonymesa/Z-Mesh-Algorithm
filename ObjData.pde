@@ -30,7 +30,8 @@ class ObjData{
   }
 }
 
-void LoadDataArrays(String[] file, ObjData object_data){
+void LoadObjDataArrays(String[] file, ObjData object_data){
+  System.out.println("Loading Object Data arrays...");
   int[] count = new int[4];
   
   for(int i = 0; i < file.length; i++){
@@ -49,6 +50,7 @@ void LoadDataArrays(String[] file, ObjData object_data){
 }
 
 void SetMinMax(ObjData object_data){
+  System.out.println("Setting Min/Max...");
   int vertices_amt = object_data.vertices.length;
   
   for(int vertex_index = 0; vertex_index < vertices_amt; vertex_index = vertex_index + 3){

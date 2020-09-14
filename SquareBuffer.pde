@@ -1,23 +1,23 @@
 class SquareBuffer{
-  public int[] grid;
-  public int grid_width;
+  public int[] pixel_array;
+  public int buffer_width;
   public int length;
   
   public SquareBuffer(int size){
-    final int grid_size = size * size;
-    this.grid = new int[grid_size];
-    this.length = grid.length;
-    this.grid_width = (int)Math.pow(this.length, .5);
+    final int buffer_size = size * size;
+    this.pixel_array = new int[buffer_size];
+    this.length = pixel_array.length;
+    this.buffer_width = (int)Math.pow(this.length, .5);
   }
 }
 
 void WriteSquareBuffer(Map<PVector, ZMeshPoint> z_mesh, SquareBuffer draw_buffer){
   int buffer_length = draw_buffer.length;
-  int buffer_width = draw_buffer.grid_width;
+  int buffer_width = draw_buffer.buffer_width;
   
   for(int y = 0; y < buffer_length; y = y + buffer_width){
     for(int x = 0; x < buffer_width; x++){
-      draw_buffer.grid[y + x] = CalculateColor(x, (int)(y / buffer_width), z_mesh);
+      draw_buffer.pixel_array[y + x] = CalculateColor(x, (int)(y / buffer_width), z_mesh);
     }
   }
 }

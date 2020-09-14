@@ -8,42 +8,71 @@ class ZMeshPoint{
   public Vector<int[]> shared_faces;
 }
 
-void PopulateZMeshPoint(ZMeshPoint z_mesh_point, int texel_index, int buffer_width, ObjData object_data){
-  int faces_amt = object_data.faces.length;
-  
-  z_mesh_point.texel = new float[]{
-    object_data.texels[texel_index + 0],
-    object_data.texels[texel_index + 1]
-  };
-  
-  int vertex_index = GetVertexIndex(object_data, texel_index, faces_amt);
+/**
+*  Populates all the data for a ZMeshPoint that will be used as a value in the HashMap.
+*/
+void PopulateZMeshPoint(ZMeshPoint z_mesh_point, int texel_index, int buffer_width, ObjData object_data)
+{ 
+  int faces_list_size = object_data.faces.length;
+  int vertex_index = GetVertexIndex(object_data, texel_index, faces_list_size);
+  int normal_index = GetNormalIndex(object_data, texel_index, faces_list_size);
 
-  z_mesh_point.vertex = new float[]{
-    object_data.vertices[vertex_index + 0],
-    object_data.vertices[vertex_index + 1],
-    object_data.vertices[vertex_index + 2]
-  };
+  SetTexel(z_mesh_point, texel_index, object_data);
+  SetVertex(z_mesh_point, vertex_index, object_data);
+  SetNormal(z_mesh_point, normal_index, object_data);
+  SetRawMagnitude(z_mesh_point);
+  SetRealMagnitude(z_mesh_point, object_data);
+  SetColorMagnitude(z_mesh_point);
   
-  int normal_index = GetNormalIndex(object_data, texel_index, faces_amt);
-  
-  z_mesh_point.normal = new float[]{
-    object_data.normals[normal_index + 0],
-    object_data.normals[normal_index + 1],
-    object_data.normals[normal_index + 2]
-  };
-  
+  Vector<int[]> shared_face_data = GetSharedFaces(object_data, texel_index, faces_list_size);
+  z_mesh_point.shared_faces = PopulateSharedFaces(object_data, shared_face_data, buffer_width);
+}
+
+void SetColorMagnitude(ZMeshPoint z_mesh_point)
+{
+  z_mesh_point.color_magnitude = 255 * z_mesh_point.real_magnitude; 
+}
+
+void SetRealMagnitude(ZMeshPoint z_mesh_point, ObjData object_data)
+{
+  z_mesh_point.real_magnitude = (z_mesh_point.raw_magnitude - object_data.min_max[0]) / object_data.magnitude_range;
+}
+
+void SetRawMagnitude(ZMeshPoint z_mesh_point)
+{
   PVector vertex = new PVector(
     z_mesh_point.vertex[0],
     z_mesh_point.vertex[1],
     z_mesh_point.vertex[2]
   );
   
-  z_mesh_point.raw_magnitude = vertex.mag();
-  z_mesh_point.real_magnitude = (z_mesh_point.raw_magnitude - object_data.min_max[0]) / object_data.magnitude_range;
-  z_mesh_point.color_magnitude = 255 * z_mesh_point.real_magnitude;
-  
-  Vector<int[]> shared_face_data = GetSharedFaces(object_data, texel_index, faces_amt);
-  z_mesh_point.shared_faces = PopulateSharedFaces(object_data, shared_face_data, buffer_width);
+  z_mesh_point.raw_magnitude = vertex.mag();  
+}
+
+void SetNormal(ZMeshPoint z_mesh_point, int normal_index, ObjData object_data)
+{
+  z_mesh_point.normal = new float[]{
+    object_data.normals[normal_index + 0],
+    object_data.normals[normal_index + 1],
+    object_data.normals[normal_index + 2]
+  };  
+}
+
+void SetTexel(ZMeshPoint z_mesh_point, int texel_index, ObjData object_data)
+{
+  z_mesh_point.texel = new float[]{
+    object_data.texels[texel_index + 0],
+    object_data.texels[texel_index + 1]
+  };  
+}
+
+void SetVertex(ZMeshPoint z_mesh_point, int vertex_index, ObjData object_data)
+{
+  z_mesh_point.vertex = new float[]{
+    object_data.vertices[vertex_index + 0],
+    object_data.vertices[vertex_index + 1],
+    object_data.vertices[vertex_index + 2]
+  }; 
 }
 
 Vector<int[]> PopulateSharedFaces(ObjData object_data, Vector<int[]> shared_faces_data, int buffer_width){
@@ -100,14 +129,21 @@ Vector<int[]> GetSharedFaces(ObjData object_data, int texel_index, int faces_amt
   
   int[] face = new int[9];
   for(int faces_index = 0; faces_index < faces_amt; faces_index = faces_index + 9) {
-    if(object_data.faces[faces_index + 1] == texel_index){
+    Arrays.fill(face, 0);
+    if(object_data.faces[faces_index + 1] == ((texel_index / 2) + 1)){
       System.arraycopy(object_data.faces, faces_index, face, 0, 9);
-    } else if (object_data.faces[faces_index + 4] == texel_index) {
+      shared_faces.add(face);
+    } else if (object_data.faces[faces_index + 4] == ((texel_index / 2) + 1)) {
       System.arraycopy(object_data.faces, faces_index, face, 0, 9);
-    } else if (object_data.faces[faces_index + 7] == texel_index) {
+      shared_faces.add(face);
+    } else if (object_data.faces[faces_index + 7] == ((texel_index / 2) + 1)) {
       System.arraycopy(object_data.faces, faces_index, face, 0, 9);
+      shared_faces.add(face);
     }
-    shared_faces.add(face);
+  }
+  for(int[] each_face : shared_faces)
+  {
+    System.out.println(Arrays.toString(each_face)); 
   }
   return shared_faces;
 }
