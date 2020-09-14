@@ -3,13 +3,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
-Logger logger;
-FileHandler file_handler;
-
 /**
 *  settings must be called to pass a variable to size().
 */
@@ -44,9 +37,9 @@ void setup()
   String[] file = loadStrings("default_file.obj");
   
   ObjData object_data = new ObjData(file);
-  LoadObjDataArrays(file, object_data);
-  SetMinMax(object_data);
-  
+  ObjParser.LoadObjDataArrays(file, object_data);
+  ObjParser.SetMinMax(object_data);
+   
   Map<PVector, ZMeshPoint> z_mesh = new HashMap<PVector, ZMeshPoint>();
   
   PopulateZMesh(z_mesh, object_data, draw_buffer.buffer_width);
@@ -71,7 +64,7 @@ void PopulateZMesh(Map<PVector, ZMeshPoint> z_mesh, ObjData object_data, int buf
     int y = (int)(buffer_width * object_data.texels[texel_index + 1]);
     PVector buffer_coords = new PVector(x, y);
     System.out.println("    At texel index " + (texel_index / 2) + ", Creating map key " + (int)buffer_coords.x + " " + (int)buffer_coords.y);
-    PopulateZMeshPoint(z_mesh_point, texel_index, buffer_width, object_data);
+    ZMesh.PopulateZMeshPoint(z_mesh_point, texel_index, buffer_width, object_data);
     z_mesh.put(buffer_coords, z_mesh_point);
   }
   
