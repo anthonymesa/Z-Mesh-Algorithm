@@ -26,7 +26,7 @@ int CalculateColor(int x, int y, Map<PVector, ZMeshPoint> z_mesh){
   PVector key_value = new PVector(x, y);
   
   if(z_mesh.containsKey(key_value)){
-    return 255;
+    return (int)z_mesh.get(key_value).color_magnitude;
   } else {
     return 0;
   }
