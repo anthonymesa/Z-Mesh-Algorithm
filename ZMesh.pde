@@ -16,13 +16,13 @@ public static class ZMesh
     int vertex_index = GetVertexIndex(object_data, texel_index, faces_list_size); // works
     //int normal_index = GetNormalIndex(object_data, texel_index, faces_list_size);
     
-    System.out.println(vertex_index + " " /* +  normal_index */);
+    //System.out.println(vertex_index + " " /* +  normal_index */);
     
     SetTexel(z_mesh_point, texel_index, object_data); // works
     SetVertex(z_mesh_point, vertex_index, object_data); // works
     
-    System.out.println(Arrays.toString(z_mesh_point.texel));
-    System.out.println(Arrays.toString(z_mesh_point.vertex));
+    //System.out.println(Arrays.toString(z_mesh_point.texel));
+    //System.out.println(Arrays.toString(z_mesh_point.vertex));
     
     //SetNormal(z_mesh_point, normal_index, object_data);
     SetRawMagnitude(z_mesh_point); // works
@@ -154,7 +154,7 @@ public static class ZMesh
     }
     for(int[] each_face : shared_faces)
     {
-      System.out.println(Arrays.toString(each_face)); 
+      //System.out.println(Arrays.toString(each_face)); 
     }
     return shared_faces;
   }

@@ -63,7 +63,7 @@ void PopulateZMesh(Map<PVector, ZMeshPoint> z_mesh, ObjData object_data, int buf
     int x = (int)(buffer_width * object_data.texels[texel_index + 0]); // x = texel at current texel array index + 0 (should be float less than 1), then * buffer width
     int y = (int)(buffer_width * object_data.texels[texel_index + 1]); // y = texel at current texel array index + 1 (should be float less than 1), then * buffer width (because its square)
     PVector buffer_coords = new PVector(x, y);
-    System.out.println("    At texel index " + (texel_index / 2) + ", Creating map key " + (int)buffer_coords.x + " " + (int)buffer_coords.y);
+    //System.out.println("    At texel index " + (texel_index / 2) + ", Creating map key " + (int)buffer_coords.x + " " + (int)buffer_coords.y);
     ZMesh.PopulateZMeshPoint(z_mesh_point, texel_index / 2, buffer_width, object_data);
     z_mesh.put(buffer_coords, z_mesh_point);
   }

@@ -71,9 +71,11 @@ void Algorithm(Vector<int[]> z_mesh, PVector key, PVector column_anchor, int buf
         AdvanceColumnAnchor(column_anchor, buffer_width);
     }
 
-    if(KeyInFace(key, z_mesh.get(column_anchor).shared_faces))
-    {
-        CalculatePixelColor(key, column_anchor, draw_buffer, buffer_width);
+    int[] face = GetFace(key, z_mesh.get(column_anchor).shared_faces));
+
+    if(face != null)
+    {   
+        CalculatePixelColor(face, key, column_anchor, draw_buffer, buffer_width);
     }
     else
     {
@@ -89,16 +91,52 @@ void AdvanceColumnAnchor(Vector<int[]> z_mesh, PVector column_anchor, int buffer
     }
 }
 
-boolean KeyInFace(PVector key, Vector<int[]> shared_faces)
+int[] GetFace(PVector key, Vector<int[]> shared_faces)
 {
-    return false;
+    for(int i = 0; i < shared_faces.size(); i++)
+    {
+        PVector a = new PVector(shared_faces.get(i)[0], shared_faces.get(i)[1]);
+        PVector b = new PVector(shared_faces.get(i)[3], shared_faces.get(i)[4]);
+        PVector c = new PVector(shared_faces.get(i)[6], shared_faces.get(i)[7]);
+
+        float area_normal = AreaTriangle(a, b, c);
+        float area_key = AreaKey(a, b, c, d);
+
+        if(area_key <= area_normal)
+        {
+            return shared_faces.get(i);
+        }
+    }
+    return null;
 }
 
-int CalculatePixelColor(PVector key, PVector column_anchor, SquareBuffer draw_buffer, int buffer_width)
+float AreaTriangle(PVector a, PVector b, PVector c)
+{
+    return Math.abs((a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2);
+}
+
+float AreaKey(PVector a, PVector b, PVector c, PVector d)
+{
+    float area_1 = Math.abs((a.x * (b.y - d.y) + b.x * (d.y - a.y) + d.x * (a.y - b.y)) / 2);
+    float area_2 = Math.abs((a.x * (c.y - d.y) + c.x * (d.y - a.y) + d.x * (a.y - c.y)) / 2);
+    float area_3 = Math.abs((b.x * (c.y - d.y) + c.x * (d.y - b.y) + d.x * (b.y - c.y)) / 2);
+    return area_1 + area_2 + area_3;
+}
+
+int CalculatePixelColor(int[] face, PVector key, PVector column_anchor, SquareBuffer draw_buffer, int buffer_width)
 {
     int color = 0;
 
-    
+    PVector a = new PVector(face[0], face[1], face[2]);
+    PVector b = new PVector(face[3], face[4], face[5]);
+    PVector c = new PVector(face[6], face[7], face[8]);
+
+    PVector d = new PVector.sub(b, a);
+    PVector e = new PVector.sub(c, a);
+
+    PVector n = d.cross(e);
+
+    float color = -(-((a.x - key.x) * (-n.x / -n.z))-((a.y - key.y) * (n.y / n.z)) - a.z);
 
     draw_buffer.pixel_array[(key.y * buffer_width) + key.x] = color;
 }
