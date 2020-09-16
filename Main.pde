@@ -30,7 +30,7 @@ int sketch_size = 500;
 */
 void setup()
 {
-  background(0);
+  background(255, 0, 0);
   
   SquareBuffer draw_buffer = new SquareBuffer(sketch_size);
   

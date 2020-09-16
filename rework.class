@@ -1,0 +1,104 @@
+class SquareBuffer{
+  public int[] pixel_array;
+  public int buffer_width;
+  public int length;
+  
+  public SquareBuffer(int size){
+    final int buffer_size = size * size;
+    this.pixel_array = new int[buffer_size];
+    this.length = pixel_array.length;
+    this.buffer_width = (int)Math.pow(this.length, .5);
+  }
+}
+
+// void WriteSquareBuffer(Map<PVector, ZMeshPoint> z_mesh, SquareBuffer draw_buffer){
+//   int buffer_length = draw_buffer.length;
+//   int buffer_width = draw_buffer.buffer_width;
+  
+//   for(int y = 0; y < buffer_length; y = y + buffer_width){
+//     for(int x = 0; x < buffer_width; x++){
+//       draw_buffer.pixel_array[y + x] = CalculateColor(x, (int)(y / buffer_width), z_mesh);
+//     }
+//   }
+// }
+
+// int CalculateColor(int x, int y, Map<PVector, ZMeshPoint> z_mesh){
+//   PVector key_value = new PVector(x, y);
+  
+//   if(z_mesh.containsKey(key_value)){
+//     return (int)z_mesh.get(key_value).color_magnitude;
+//   } else {
+//     return 0;
+//   }
+// }
+
+void WriteSquareBuffer(Map<PVector, ZMeshPoint> z_mesh, SquareBuffer draw_buffer){
+  int buffer_length = draw_buffer.length;
+  int buffer_width = draw_buffer.buffer_width;
+  
+  PVector row_anchor = new PVector(0, 0);
+  PVector column_anchor = new PVector(0, 0);
+
+  for(int y = 0; y < buffer_width; y++)
+  {
+    if(z_mesh.containsKey(new PVector(0, y)))
+    {
+        row_anchor.set(0, y);
+    }
+
+    column_anchor.set(row_anchor.x, row_anchor.y);
+
+    for(int x = 0; x < buffer_width; x++)
+    {
+        PVector key = new PVector(x, y);
+
+        if(z_mesh.containsKey(key))
+        {
+            draw_buffer.pixel_array[(y * buffer_width) + x] = (int) z_mesh.get(key).color_magnitude;
+        }
+        else
+        {
+            Algorithm(z_mesh, key, column_anchor, buffer_width, draw_buffer, false);
+        }
+    }
+  }
+}
+
+void Algorithm(Vector<int[]> z_mesh, PVector key, PVector column_anchor, int buffer_width, SquareBuffer draw_buffer, boolean recursion)
+{
+    if(recursion)
+    {
+        AdvanceColumnAnchor(column_anchor, buffer_width);
+    }
+
+    if(KeyInFace(key, z_mesh.get(column_anchor).shared_faces))
+    {
+        CalculatePixelColor(key, column_anchor, draw_buffer, buffer_width);
+    }
+    else
+    {
+        Algorithm(z_mesh, key, column_anchor, buffer_width, draw_buffer, true);
+    }
+}
+
+void AdvanceColumnAnchor(Vector<int[]> z_mesh, PVector column_anchor, int buffer_width)
+{
+    while((!z_mesh.containsKey(column_anchor)) && (column_anchor.x < (buffer_width + 1)))
+    {
+        column_anchor.set(column_anchor.x + 1, column_anchor.y);
+    }
+}
+
+boolean KeyInFace(PVector key, Vector<int[]> shared_faces)
+{
+    return false;
+}
+
+int CalculatePixelColor(PVector key, PVector column_anchor, SquareBuffer draw_buffer, int buffer_width)
+{
+    int color = 0;
+
+    
+
+    draw_buffer.pixel_array[(key.y * buffer_width) + key.x] = color;
+}

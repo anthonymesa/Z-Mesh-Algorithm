@@ -28,6 +28,11 @@ int CalculateColor(int x, int y, Map<PVector, ZMeshPoint> z_mesh){
   if(z_mesh.containsKey(key_value)){
     return (int)z_mesh.get(key_value).color_magnitude;
   } else {
-    return 0;
+    return Algorithm();
   }
+}
+
+int Algorithm()
+{
+  return 0;
 }
