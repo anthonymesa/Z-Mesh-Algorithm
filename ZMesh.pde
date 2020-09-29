@@ -30,17 +30,20 @@ public static class ZMesh
     SetColorMagnitude(z_mesh_point); //works
     
     Vector<int[]> shared_face_data = GetSharedFaces(object_data, texel_index, faces_list_size); // works
-    z_mesh_point.shared_faces = PopulateSharedFaces(object_data, shared_face_data, buffer_width); 
+    PopulateSharedFaces(z_mesh_point, object_data, shared_face_data, buffer_width);
+    PopulateSharedNodes(z_mesh_point, object_data, shared_face_data, buffer_width);
   }
   
   public static void SetColorMagnitude(ZMeshPoint z_mesh_point)
   {
-    z_mesh_point.color_magnitude = 255 * z_mesh_point.real_magnitude; 
+    z_mesh_point.color_magnitude = 255 * z_mesh_point.real_magnitude;
+    //System.out.println("color mag: " + z_mesh_point.color_magnitude);
   }
   
   public static void SetRealMagnitude(ZMeshPoint z_mesh_point, ObjData object_data)
   {
     z_mesh_point.real_magnitude = (z_mesh_point.raw_magnitude - object_data.min_max[0]) / object_data.magnitude_range;
+    //System.out.println("real mag: " + z_mesh_point.real_magnitude);
   }
   
   public static void SetRawMagnitude(ZMeshPoint z_mesh_point)
@@ -52,6 +55,7 @@ public static class ZMesh
     );
     
     z_mesh_point.raw_magnitude = vertex.mag();  
+    //System.out.println("raw mag: " + z_mesh_point.raw_magnitude);
   }
   
   public static void SetNormal(ZMeshPoint z_mesh_point, int normal_index, ObjData object_data)
@@ -80,7 +84,7 @@ public static class ZMesh
     }; 
   }
   
-  public static Vector<int[]> PopulateSharedFaces(ObjData object_data, Vector<int[]> shared_faces_data, int buffer_width){ // buffer width = 500
+  public static void PopulateSharedFaces(ZMeshPoint z_mesh_point, ObjData object_data, Vector<int[]> shared_faces_data, int buffer_width){ // buffer width = 500
     Vector<int[]> shared_faces = new Vector<int[]>();
     
     for(int vector_index = 0; vector_index < shared_faces_data.size(); vector_index++){ // for each array of ints (shared_face arrays) in the vector
@@ -92,8 +96,46 @@ public static class ZMesh
 
       shared_faces.add(shared_data);
     }
-    return shared_faces;
+    z_mesh_point.shared_faces = shared_faces;
   }
+  
+  public static void PopulateSharedNodes(ZMeshPoint z_mesh_point, ObjData object_data, Vector<int[]> shared_faces_data, int buffer_width){ // buffer width = 500
+    LinkedHashSet<PVector> shared_nodes = new LinkedHashSet<PVector>();
+    
+    for(int vector_index = 0; vector_index < shared_faces_data.size(); vector_index++){ // for each array of ints (shared_face arrays) in the vector
+      
+      int t_i = shared_faces_data.get(vector_index)[1];
+      PVector node_1 = new PVector(
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]),
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1])
+      );
+      
+      t_i = shared_faces_data.get(vector_index)[4];
+      PVector node_2 = new PVector(
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]),
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1])
+      );
+      
+      t_i = shared_faces_data.get(vector_index)[7];
+      PVector node_3 = new PVector(
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]),
+        (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1])
+      );
+
+      shared_nodes.add(node_1);
+      shared_nodes.add(node_2);
+      shared_nodes.add(node_3);
+    }
+    
+    PVector root_node = new PVector(
+      (int)z_mesh_point.texel[0] * buffer_width,
+      (int)z_mesh_point.texel[0] * buffer_width
+    );
+    
+    shared_nodes.remove(root_node);
+    z_mesh_point.shared_nodes = shared_nodes;
+  }
+  
   
   public static void SetFaceA(int[] shared_data, Vector<int[]> shared_faces_data, int vector_index, ObjData object_data, int buffer_width) // vector_index = 0, 1, 2 -
   {
@@ -101,8 +143,7 @@ public static class ZMesh
     int v_i = shared_faces_data.get(vector_index)[0]; // (dummy values) [67] 47 160 10 106 160 59 104 160
     shared_data[0] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]);
     shared_data[1] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1]);
-    float raw_mag_vector = GetRawMag(object_data, v_i - 1);
-    shared_data[2] = (int)(raw_mag_vector * 255);
+    shared_data[2] = GetColorValue(object_data, v_i - 1);
   }
   
   public static void SetFaceB(int[] shared_data, Vector<int[]> shared_faces_data, int vector_index, ObjData object_data, int buffer_width)
@@ -111,8 +152,7 @@ public static class ZMesh
     int v_i = shared_faces_data.get(vector_index)[3];
     shared_data[3] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]);
     shared_data[4] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1]);
-    float raw_mag_vector = GetRawMag(object_data, v_i - 1);
-    shared_data[5] = (int)(raw_mag_vector * 255);
+    shared_data[5] = GetColorValue(object_data, v_i - 1);
   }
   
   public static void SetFaceC(int[] shared_data, Vector<int[]> shared_faces_data, int vector_index, ObjData object_data, int buffer_width)
@@ -121,10 +161,50 @@ public static class ZMesh
     int v_i = shared_faces_data.get(vector_index)[6];
     shared_data[6] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 0]);
     shared_data[7] = (int)(buffer_width * object_data.texels[((t_i - 1) * 2) + 1]);
-    float raw_mag_vector = GetRawMag(object_data, v_i - 1);
-    shared_data[8] = (int)(raw_mag_vector * 255);
+    shared_data[8] = GetColorValue(object_data, v_i - 1);
   }
   
+  public static int GetColorValue(ObjData object_data, int v_i)
+  {
+    float temp_raw_mag = new PVector(
+      object_data.vertices[(v_i * 3) + 0],
+      object_data.vertices[(v_i * 3) + 1],
+      object_data.vertices[(v_i * 3) + 2]
+    ).mag();
+    
+    float temp_real_mag = (temp_raw_mag - object_data.min_max[0]) / object_data.magnitude_range;
+    
+    float color_magnitude = 255 * temp_real_mag;
+    
+    return (int)color_magnitude;
+  }
+  
+  /*
+  
+    public static void SetColorMagnitude(ZMeshPoint z_mesh_point)
+  {
+    z_mesh_point.color_magnitude = 255 * z_mesh_point.real_magnitude;
+    //System.out.println("color mag: " + z_mesh_point.color_magnitude);
+  }
+  
+  public static void SetRealMagnitude(ZMeshPoint z_mesh_point, ObjData object_data)
+  {
+    z_mesh_point.real_magnitude = (z_mesh_point.raw_magnitude - object_data.min_max[0]) / object_data.magnitude_range;
+    //System.out.println("real mag: " + z_mesh_point.real_magnitude);
+  }
+  
+  public static void SetRawMagnitude(ZMeshPoint z_mesh_point)
+  {
+    PVector vertex = new PVector(
+      z_mesh_point.vertex[0],
+      z_mesh_point.vertex[1],
+      z_mesh_point.vertex[2]
+    );
+    
+    z_mesh_point.raw_magnitude = vertex.mag();  
+    //System.out.println("raw mag: " + z_mesh_point.raw_magnitude);
+  }
+  */
   public static float GetRawMag(ObjData object_data, int v_i)
   {
     return new PVector(

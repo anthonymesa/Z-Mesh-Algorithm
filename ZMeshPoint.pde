@@ -6,4 +6,5 @@ class ZMeshPoint{
   public float real_magnitude;
   public float color_magnitude;
   public Vector<int[]> shared_faces;
+  public LinkedHashSet<PVector> shared_nodes;
 }

@@ -2,6 +2,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.LinkedHashSet;
+
 
 /**
 *  settings must be called to pass a variable to size().
@@ -16,7 +18,7 @@ void settings()
 *  as well as the size of the grid that is the "mesh". This value
 *  is the only value passed, so it should always be a square window.
 */
-int sketch_size = 500;
+int sketch_size = 1000;
 
 /**
 *  Called once so we only render one frame.
@@ -30,11 +32,11 @@ int sketch_size = 500;
 */
 void setup()
 {
-  background(255, 0, 0);
+  background( 0, 255, 0);
   
   SquareBuffer draw_buffer = new SquareBuffer(sketch_size);
   
-  String[] file = loadStrings("test_file.obj");
+  String[] file = loadStrings("test_file_2.obj");
   
   ObjData object_data = new ObjData(file);
   ObjParser.LoadObjDataArrays(file, object_data);
@@ -45,6 +47,7 @@ void setup()
   PopulateZMesh(z_mesh, object_data, draw_buffer.buffer_width);
   WriteSquareBuffer(z_mesh, draw_buffer);
   Render(draw_buffer);
+  save("test_object_output.jpg");
 }
 
 /**
@@ -54,7 +57,7 @@ void setup()
 */
 void PopulateZMesh(Map<PVector, ZMeshPoint> z_mesh, ObjData object_data, int buffer_width)
 {
-  System.out.println("Populating Z Mesh...");
+  //System.out.println("Populating Z Mesh...");
   
   int texels_amt = object_data.texels.length;  // # of texels * 2 (x, y values)
  
@@ -68,7 +71,7 @@ void PopulateZMesh(Map<PVector, ZMeshPoint> z_mesh, ObjData object_data, int buf
     z_mesh.put(buffer_coords, z_mesh_point);
   }
   
-  System.out.println("Populating complete...");
+  //System.out.println("Populating complete...");
 }
 
 /**
@@ -77,13 +80,29 @@ void PopulateZMesh(Map<PVector, ZMeshPoint> z_mesh, ObjData object_data, int buf
 *  @param draw_buffer The buffer object that should be rendered.
 */
 void Render(SquareBuffer draw_buffer){
+  //System.out.println("Rendering buffer...");
   int buffer_size = draw_buffer.length;
   loadPixels();
   
   for(int index = 0; index < buffer_size; index++){
     DrawPixel(index, draw_buffer, pixels);
   }
+ 
   updatePixels();
+  
+  StringBuffer data_grid = new StringBuffer();
+
+  for(int i = 0; i < draw_buffer.buffer_width; i++)
+  {
+    for(int j = 0; j < draw_buffer.buffer_width; j++)
+    {
+      data_grid.append(String.format("%4d", draw_buffer.pixel_array[(i * draw_buffer.buffer_width) + j]));
+    }
+    data_grid.append("\n");
+  }
+  
+  //System.out.println(data_grid);
+  //System.out.println("Rendering complete...");
 }
 
 /**
@@ -94,5 +113,6 @@ void Render(SquareBuffer draw_buffer){
 *  @param pixel Processing array of pixels
 */
 void DrawPixel(int index, SquareBuffer draw_buffer, color[] pixel){
+  //System.out.println("color value: " + draw_buffer.pixel_array[index]);
   pixel[index] = color(draw_buffer.pixel_array[index]);
 }
