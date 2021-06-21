@@ -1,6 +1,10 @@
 # Z-Mesh-Algorithm
 This algorithm is used to interpolate between points in a 2-dimensional array, generating a hi-fidelity "image" from a low-fidelity set of data.
 
+## Update
+While very interesting, this algorithm is actually going to be abandoned in Muser because it has kind-of a horrendous running time, due to the fact that for each pixel in the image, 'find' is called on a map that has roughly 90k elements, leading to a running time of roughly O(10k * 90k). Using a rasterization technique instead I can lower it to roughly O(10k).
+
+## Low Fidelity Data?
 Below are examples to clarify what this actually means.
 1. First, you can see the actual mesh object itself, this is what we are reading. The mesh object is loaded into the processing sketch, and the .obj data is parsed.
 
